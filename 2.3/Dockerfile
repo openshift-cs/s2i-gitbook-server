@@ -3,13 +3,13 @@ FROM centos:7
 # Copy into place S2I builder scripts and label the Docker image so that
 # the 's2i' program knows where to find them.
 
-COPY s2i /opt/app-root/s2i
+COPY s2i /usr/libexec/s2i
 
 # Install any required system packages. We need the Apache httpd web
 # server and various NodeJS packages in this instance, plus the 'rsync'
 # package so we can copy files into the running container if necessary.
 
-RUN rpmkeys --import file:///opt/app-root/s2i/RPM-GPG-KEY-CentOS-7 && \
+RUN rpmkeys --import file:///usr/libexec/s2i/RPM-GPG-KEY-CentOS-7 && \
     PACKAGES1="httpd rsync git" && \
     yum install -y --setopt=tsflags=nodocs ${PACKAGES1} && \
     rpm -V ${PACKAGES1} && \
@@ -56,10 +56,12 @@ LABEL io.k8s.description="S2I builder for hosting GitBook site." \
       io.k8s.display-name="GitBook Server" \
       io.openshift.expose-services="8080:http" \
       io.openshift.tags="builder,gitbook" \
-      io.openshift.s2i.scripts-url="image:///opt/app-root/s2i/bin"
+      io.openshift.s2i.scripts-url="image:///usr/libexec/s2i"
 
-RUN chown -R 1001:0 /opt/app-root/s2i && \
-    find /opt/app-root/s2i -type d -exec chmod g+ws {} \;
+RUN chown -R 1001:0 /usr/libexec/s2i && \
+    find /usr/libexec/s2i -type d -exec chmod g+ws {} \; && \
+    mkdir /opt/app-root && \
+    find /opt/app-root -type d -exec chmod g+ws {} \;
 
 # Ensure container runs as non root account.
 
@@ -91,4 +93,4 @@ WORKDIR /opt/app-root/src
 # Set the default command to be the 'usage' script as can't meaningfully
 # run the container unless a 's2i' build has been done.
 
-CMD [ "/opt/app-root/s2i/bin/usage" ]
+CMD [ "/usr/libexec/s2i/usage" ]
