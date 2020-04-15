@@ -1,15 +1,20 @@
-FROM centos:8
+FROM centos:7
+
+# Copy into place S2I builder scripts and label the Docker image so that
+# the 's2i' program knows where to find them.
+
+COPY s2i /opt/app-root/s2i
 
 # Install any required system packages. We need the Apache httpd web
 # server and various NodeJS packages in this instance, plus the 'rsync'
 # package so we can copy files into the running container if necessary.
 
-RUN rpmkeys --import file:///opt/app-root/s2i/RPM-GPG-KEY-CentOS-8 && \
-    PACKAGES1="httpd rsync" && \
+RUN rpmkeys --import file:///opt/app-root/s2i/RPM-GPG-KEY-CentOS-7 && \
+    PACKAGES1="httpd rsync git" && \
     yum install -y --setopt=tsflags=nodocs ${PACKAGES1} && \
     rpm -V ${PACKAGES1} && \
     yum install -y centos-release-scl-rh && \
-    PACKAGES2="rh-nodejs4 rh-nodejs4-npm rh-nodejs4-nodejs-nodemon" && \
+    PACKAGES2="rh-nodejs10 rh-nodejs10-npm rh-nodejs10-nodejs-nodemon" && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum install -y --setopt=tsflags=nodocs $PACKAGES2 && \
     rpm -V ${PACKAGES2} && \
@@ -44,13 +49,8 @@ EXPOSE 8080
 
 # Install GitBook CLI to global SCL NodeJS installation.
 
-RUN source scl_source enable rh-nodejs4 && \
+RUN source scl_source enable rh-nodejs10 && \
     npm install -g gitbook-cli@2.3.2
-
-# Copy into place S2I builder scripts and label the Docker image so that
-# the 's2i' program knows where to find them.
-
-COPY s2i /opt/app-root/s2i
 
 LABEL io.k8s.description="S2I builder for hosting GitBook site." \
       io.k8s.display-name="GitBook Server" \
@@ -72,7 +72,7 @@ ENV HOME=/opt/app-root
 
 # Install GitBook package into the home directory of the non root user.
 
-RUN source scl_source enable rh-nodejs4 && \
+RUN source scl_source enable rh-nodejs10 && \
     gitbook fetch latest
 
 # Create the 'src' directory where the source code will reside. Fixup
