@@ -4,7 +4,7 @@ FROM centos:8
 # server and various NodeJS packages in this instance, plus the 'rsync'
 # package so we can copy files into the running container if necessary.
 
-RUN rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
+RUN rpmkeys --import file:///opt/app-root/s2i/RPM-GPG-KEY-CentOS-8 && \
     PACKAGES1="httpd rsync" && \
     yum install -y --setopt=tsflags=nodocs ${PACKAGES1} && \
     rpm -V ${PACKAGES1} && \
