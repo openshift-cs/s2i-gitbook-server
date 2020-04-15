@@ -60,7 +60,6 @@ LABEL io.k8s.description="S2I builder for hosting GitBook site." \
 
 RUN chown -R 1001:0 /usr/libexec/s2i && \
     find /usr/libexec/s2i -type d -exec chmod g+ws {} \; && \
-    mkdir /opt/app-root && \
     find /opt/app-root -type d -exec chmod g+ws {} \;
 
 # Ensure container runs as non root account.
