@@ -1,4 +1,4 @@
-FROM centos:centos7
+FROM centos:8
 
 # Install any required system packages. We need the Apache httpd web
 # server and various NodeJS packages in this instance, plus the 'rsync'
@@ -13,7 +13,8 @@ RUN rpmkeys --import file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7 && \
     ln -s /usr/lib/node_modules/nodemon/bin/nodemon.js /usr/bin/nodemon && \
     yum install -y --setopt=tsflags=nodocs $PACKAGES2 && \
     rpm -V ${PACKAGES2} && \
-    yum clean all -y
+    yum clean all -y && \
+    rm -rf /var/cache/yum
 
 # Create a non root account called 'default' to be the owner of all the
 # files which the Apache httpd server will be hosting. This account
@@ -44,7 +45,7 @@ EXPOSE 8080
 # Install GitBook CLI to global SCL NodeJS installation.
 
 RUN source scl_source enable rh-nodejs4 && \
-    npm install -g gitbook-cli@2.3.0
+    npm install -g gitbook-cli@2.3.2
 
 # Copy into place S2I builder scripts and label the Docker image so that
 # the 's2i' program knows where to find them.
